@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Moja Lista Zakupów</title>
+</head>
+<body>
+    <h1>Moja lista zakupów</h1>
+    
+    <!-- Menu nawigacyjne wspólne dla całej strony -->
+    <nav>
+        {% if user.is_authenticated %}
+            Zalogowany jako: <strong>{{ user.username }}</strong> |
+            <a href="{% url 'shopping_list' %}">Lista zakupów</a> |
+            <a href="{% url 'profile' %}">Profil</a> |
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Wyloguj</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Zaloguj się</a> |
+            <a href="{% url 'register' %}">Zarejestruj się</a>
+        {% endif %}
+    </nav>
+    <hr>
+
+    <!-- Zależnie od przekazanej zmiennej 'action' wyświetlamy odpowiednią treść -->
+    {% if action == 'register' %}
+        <h2>Rejestracja</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Zarejestruj się</button>
+        </form>
+
+    {% elif action == 'login' %}
+        <h2>Logowanie</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Zaloguj</button>
+        </form>
+
+    {% elif action == 'profile' %}
+        <h2>Twój Profil</h2>
+        <p><strong>Login:</strong> {{ username }}</p>
+        <p><strong>Email:</strong> {% if email %}{{ email }}{% else %}Brak podanego emaila{% endif %}</p>
+        <p><strong>Konto utworzono:</strong> {{ date_joined|date:"d.m.Y H:i" }}</p>
+
+    {% else %}
+        <!-- Domyślny widok (action == 'list'): Lista zakupów -->
+        <h2>Produkty (Do kupienia: {{ count_remaining }})</h2>
+        
+        <div style="display: flex; gap: 50px;">
+            <div>
+                <h3>Do Kupienia</h3>
+                <ul>
+                    {% for item in to_buy %}
+                        <li>{{ item.name }}</li>
+                    {% empty %}
+                        <li>Brak produktów.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <h3>Kupione</h3>
+                <ul>
+                    {% for item in bought %}
+                        <li>{{ item.name }}</li>
+                    {% empty %}
+                        <li>Brak produktów.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+
+</body>
+</html>
