@@ -21,7 +21,9 @@ from shopping_list import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.shopping_list_view, name='shopping_list'),
+    path('', views.shopping_list_view, name='shopping_list'),)
+    path('buy/<int:id>/', views.product_buy, name='product_buy'),
+    path('delete/<int:id>/', views.product_delete, name='product_delete'),
     path('register/', views.register_view, name='register'),
     path('login/', auth_views.LoginView.as_view(
         template_name='shopping_list/index.html',
@@ -29,8 +31,4 @@ urlpatterns = [
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('profile/', views.profile_view, name='profile'),
-    path('events/', views.event_list, name='event_list'),
-    path('events/create/', views.event_create, name='event_create'),
-    path('events/edit/<int:id>/', views.event_update, name='event_update'),
-    path('events/delete/<int:id>/', views.event_delete, name='event_delete'),
 ]

@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from .models import Product, Event
-from .forms import EventForm
+from .models import Product
+
 
 
 def register_view(request):
@@ -44,39 +44,37 @@ def shopping_list_view(request):
     }
     return render(request, 'shopping_list/index.html', context)
 
-@login_required
-def event_list(request):
-    events = Event.objects.filter(user=request.user).order_by('-date')
-    return render(request, 'shopping_list/index.html', {'events': events})
 
 @login_required
-def event_create(request):
+def shopping_list_view(request):
     if request.method == 'POST':
-        form = EventForm(request.POST)
-        if form.is_valid():
-            event = form.save(commit=False)
-            event.user = request.user
-            event.save()
-            return redirect('event_list')
-    else:
-        form = EventForm()
-    return render(request, 'shopping_list/index.html', {'form': form, 'akcja': 'Dodaj'})
+        product_name = request.POST.get('name')
+        if product_name:
+            Product.objects.create(name=product_name, is_bought=False)
+        return redirect('shopping_list')
+
+    products_to_buy = Product.objects.filter(is_bought=False)
+    products_bought = Product.objects.filter(is_bought=True)
+
+    context = {
+        'to_buy': products_to_buy,
+        'bought': products_bought,
+        'count_remaining': products_to_buy.count(),
+        'action': 'list'
+    }
+    return render(request, 'shopping_list/index.html', context)
+
 
 @login_required
-def event_update(request, id):
-    event = get_object_or_404(Event, id=id, user=request.user)
-    if request.method == 'POST':
-        form = EventForm(request.POST, instance=event)
-        if form.is_valid():
-            form.save()
-            return redirect('event_list')
-    else:
-        form = EventForm(instance=event)
-    return render(request, 'shopping_list/index.html', {'form': form, 'akcja': 'Edytuj'})
+def product_buy(request, id):
+    product = get_object_or_404(Product, id=id)
+    product.is_bought = True
+    product.save()
+    return redirect('shopping_list')
+
 
 @login_required
-def event_delete(request, id):
-    event = get_object_or_404(Event, id=id, user=request.user)
-    if request.method == 'POST':
-        event.delete()
-    return redirect('event_list')
+def product_delete(request, id):
+    product = get_object_or_404(Product, id=id)
+    product.delete()
+    return redirect('shopping_list')

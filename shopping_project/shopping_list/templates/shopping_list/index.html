@@ -11,7 +11,6 @@
         {% if user.is_authenticated %}
             Zalogowany jako: <strong>{{ user.username }}</strong> |
             <a href="{% url 'shopping_list' %}">Lista zakupów</a> |
-            <a href="{% url 'event_list' %}">Wydarzenia</a> |
             <a href="{% url 'profile' %}">Profil</a> |
             <form action="{% url 'logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
@@ -46,47 +45,32 @@
         <p><strong>Email:</strong> {% if email %}{{ email }}{% else %}Brak podanego emaila{% endif %}</p>
         <p><strong>Konto utworzono:</strong> {{ date_joined|date:"d.m.Y H:i" }}</p>
 
-
-    {% elif action == 'event_list' %}
-        <h2>Moje Wydarzenia</h2>
-        <a href="{% url 'event_create' %}"><b>+ Dodaj nowe wydarzenie</b></a>
-        <ul>
-            {% for event in events %}
-                <li style="margin-bottom: 15px;">
-                    <strong>{{ event.title }}</strong> ({{ event.date }})<br>
-                    {{ event.description }}<br>
-                    <div style="display: flex; gap: 10px; margin-top: 5px;">
-                        <a href="{% url 'event_update' event.id %}"><button>Edytuj</button></a>
-                        <form action="{% url 'event_delete' event.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" style="color: red;">Usuń</button>
-                        </form>
-                    </div>
-                </li>
-            {% empty %}
-                <p>Nie masz jeszcze żadnych wydarzeń.</p>
-            {% endfor %}
-        </ul>
-
-    {% elif action == 'event_form' %}
-        <h2>{{ akcja }} wydarzenie</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Zapisz</button>
-        </form>
-        <br>
-        <a href="{% url 'event_list' %}">Anuluj i wróć</a>
-    
     {% else %}
         <h2>Produkty (Do kupienia: {{ count_remaining }})</h2>
         
+        <form method="post" action="{% url 'shopping_list' %}">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="Co chcesz kupić?" required>
+            <button type="submit">Dodaj</button>
+        </form>
+        <br>
+
         <div style="display: flex; gap: 50px;">
             <div>
                 <h3>Do Kupienia</h3>
                 <ul>
                     {% for item in to_buy %}
-                        <li>{{ item.name }}</li>
+                        <li style="margin-bottom: 5px;">
+                            {{ item.name }}
+                            <form action="{% url 'product_buy' item.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="font-size: 12px; margin-left: 10px;">Kupione</button>
+                            </form>
+                            <form action="{% url 'product_delete' item.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="color: red; font-size: 12px;">Usuń</button>
+                            </form>
+                        </li>
                     {% empty %}
                         <li>Brak produktów.</li>
                     {% endfor %}
@@ -96,7 +80,13 @@
                 <h3>Kupione</h3>
                 <ul>
                     {% for item in bought %}
-                        <li>{{ item.name }}</li>
+                        <li style="margin-bottom: 5px;">
+                            <strike>{{ item.name }}</strike>
+                            <form action="{% url 'product_delete' item.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="color: red; font-size: 12px; margin-left: 10px;">Usuń</button>
+                            </form>
+                        </li>
                     {% empty %}
                         <li>Brak produktów.</li>
                     {% endfor %}
