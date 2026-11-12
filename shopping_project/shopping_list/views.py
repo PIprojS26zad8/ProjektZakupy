@@ -30,21 +30,6 @@ def profile_view(request):
     }
     return render(request, 'shopping_list/index.html', context)
 
-
-@login_required
-def shopping_list_view(request):
-    products_to_buy = Product.objects.filter(is_bought=False)
-    products_bought = Product.objects.filter(is_bought=True)
-
-    context = {
-        'to_buy': products_to_buy,
-        'bought': products_bought,
-        'count_remaining': products_to_buy.count(),
-        'action': 'list'
-    }
-    return render(request, 'shopping_list/index.html', context)
-
-
 @login_required
 def shopping_list_view(request):
     if request.method == 'POST':
@@ -53,8 +38,8 @@ def shopping_list_view(request):
             Product.objects.create(name=product_name, is_bought=False, user=request.user)
         return redirect('shopping_list')
 
-        products_to_buy = Product.objects.filter(is_bought=False, user=request.user)
-        products_bought = Product.objects.filter(is_bought=True, user=request.user)
+    products_to_buy = Product.objects.filter(is_bought=False, user=request.user)
+    products_bought = Product.objects.filter(is_bought=True, user=request.user)
 
     context = {
         'to_buy': products_to_buy,
