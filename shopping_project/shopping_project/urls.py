@@ -21,7 +21,7 @@ from shopping_list import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.shopping_list_view, name='shopping_list'),)
+    path('', views.shopping_list_view, name='shopping_list'),
     path('buy/<int:id>/', views.product_buy, name='product_buy'),
     path('delete/<int:id>/', views.product_delete, name='product_delete'),
     path('register/', views.register_view, name='register'),
