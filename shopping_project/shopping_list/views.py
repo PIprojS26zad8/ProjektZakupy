@@ -50,11 +50,11 @@ def shopping_list_view(request):
     if request.method == 'POST':
         product_name = request.POST.get('name')
         if product_name:
-            Product.objects.create(name=product_name, is_bought=False)
+            Product.objects.create(name=product_name, is_bought=False, user=request.user)
         return redirect('shopping_list')
 
-    products_to_buy = Product.objects.filter(is_bought=False)
-    products_bought = Product.objects.filter(is_bought=True)
+        products_to_buy = Product.objects.filter(is_bought=False, user=request.user)
+        products_bought = Product.objects.filter(is_bought=True, user=request.user)
 
     context = {
         'to_buy': products_to_buy,
@@ -67,14 +67,15 @@ def shopping_list_view(request):
 
 @login_required
 def product_buy(request, id):
-    product = get_object_or_404(Product, id=id)
-    product.is_bought = True
-    product.save()
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=id, user=request.user)
+        product.is_bought = True
+        product.save()
     return redirect('shopping_list')
-
 
 @login_required
 def product_delete(request, id):
-    product = get_object_or_404(Product, id=id)
-    product.delete()
+    if request.method == 'POST':
+        product = get_object_or_404(Product, id=id, user=request.user)
+        product.delete()
     return redirect('shopping_list')
