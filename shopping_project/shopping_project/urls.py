@@ -29,4 +29,8 @@ urlpatterns = [
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('profile/', views.profile_view, name='profile'),
+    path('events/', views.event_list, name='event_list'),
+    path('events/create/', views.event_create, name='event_create'),
+    path('events/edit/<int:id>/', views.event_update, name='event_update'),
+    path('events/delete/<int:id>/', views.event_delete, name='event_delete'),
 ]
